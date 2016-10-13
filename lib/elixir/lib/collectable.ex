@@ -42,7 +42,7 @@ defprotocol Collectable do
   If injection is suddenly interrupted, `:halt` is passed and it can
   return any value, as it won't be used.
   """
-  @spec into(t) :: {term, (term, command -> t | term)}
+  @spec into(term) :: {term, (term, command -> term | term)}
   def into(collectable)
 end
 
