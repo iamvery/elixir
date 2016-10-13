@@ -42,6 +42,10 @@ defmodule Collectable do
   If injection is suddenly interrupted, `:halt` is passed and it can
   return any value, as it won't be used.
   """
+  # TODO this stuff can probably be generated with a macro, considering:
+  #   protocol do
+  #     into(term) :: {...}
+  #   end
   @spec into(term) :: {term, (term, command -> term | term)}
   @callback into(term) :: {term, (term, command -> term | term)}
 
