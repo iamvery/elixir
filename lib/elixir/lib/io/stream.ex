@@ -32,20 +32,19 @@ defmodule IO.Stream do
     %IO.Stream{device: device, raw: raw, line_or_bytes: line_or_bytes}
   end
 
-  defimpl Collectable do
-    def into(%{device: device, raw: raw} = stream) do
-      {:ok, into(stream, device, raw)}
-    end
+  @behaviour Collectable
+  def into(%{device: device, raw: raw} = stream) do
+    {:ok, into(stream, device, raw)}
+  end
 
-    defp into(stream, device, raw) do
-      fn
-        :ok, {:cont, x} ->
-          case raw do
-            true  -> IO.binwrite(device, x)
-            false -> IO.write(device, x)
-          end
-        :ok, _ -> stream
-      end
+  defp into(stream, device, raw) do
+    fn
+      :ok, {:cont, x} ->
+        case raw do
+          true  -> IO.binwrite(device, x)
+          false -> IO.write(device, x)
+        end
+      :ok, _ -> stream
     end
   end
 

@@ -34,35 +34,34 @@ defmodule File.Stream do
     %File.Stream{path: path, modes: modes, raw: raw, line_or_bytes: line_or_bytes}
   end
 
-  defimpl Collectable do
-    def into(%{path: path, modes: modes, raw: raw} = stream) do
-      modes = for mode <- modes, not mode in [:read], do: mode
+  @behaviour Collectable
+  def into(%{path: path, modes: modes, raw: raw} = stream) do
+    modes = for mode <- modes, not mode in [:read], do: mode
 
-      case :file.open(path, [:write | modes]) do
-        {:ok, device} ->
-          {:ok, into(device, stream, raw)}
-        {:error, reason} ->
-          raise File.Error, reason: reason, action: "stream", path: path
-      end
+    case :file.open(path, [:write | modes]) do
+      {:ok, device} ->
+        {:ok, into(device, stream, raw)}
+      {:error, reason} ->
+        raise File.Error, reason: reason, action: "stream", path: path
     end
+  end
 
-    defp into(device, stream, raw) do
-      fn
-        :ok, {:cont, x} ->
-          case raw do
-            true  -> IO.binwrite(device, x)
-            false -> IO.write(device, x)
-          end
-        :ok, :done ->
-          # If delayed_write option is used and the last write failed will
-          # MatchError here as {:error, _} is returned.
-          :ok = :file.close(device)
-          stream
-        :ok, :halt ->
-          # If delayed_write option is used and the last write failed will
-          # MatchError here as {:error, _} is returned.
-          :ok = :file.close(device)
-      end
+  defp into(device, stream, raw) do
+    fn
+      :ok, {:cont, x} ->
+        case raw do
+          true  -> IO.binwrite(device, x)
+          false -> IO.write(device, x)
+        end
+      :ok, :done ->
+        # If delayed_write option is used and the last write failed will
+        # MatchError here as {:error, _} is returned.
+        :ok = :file.close(device)
+        stream
+      :ok, :halt ->
+        # If delayed_write option is used and the last write failed will
+        # MatchError here as {:error, _} is returned.
+        :ok = :file.close(device)
     end
   end
 

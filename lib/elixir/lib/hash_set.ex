@@ -232,15 +232,8 @@ defmodule HashSet do
   defp key_shift(hash) do
     hash >>> @node_shift
   end
-end
 
-defimpl Enumerable, for: HashSet do
-  def reduce(set, acc, fun), do: HashSet.reduce(set, acc, fun)
-  def member?(set, v),       do: {:ok, HashSet.member?(set, v)}
-  def count(set),            do: {:ok, HashSet.size(set)}
-end
-
-defimpl Collectable, for: HashSet do
+  @behaviour Collectable
   def into(original) do
     {original, fn
       set, {:cont, x} -> HashSet.put(set, x)
@@ -248,6 +241,12 @@ defimpl Collectable, for: HashSet do
       _, :halt -> :ok
     end}
   end
+end
+
+defimpl Enumerable, for: HashSet do
+  def reduce(set, acc, fun), do: HashSet.reduce(set, acc, fun)
+  def member?(set, v),       do: {:ok, HashSet.member?(set, v)}
+  def count(set),            do: {:ok, HashSet.size(set)}
 end
 
 defimpl Inspect, for: HashSet do

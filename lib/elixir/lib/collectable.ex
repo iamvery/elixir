@@ -1,4 +1,4 @@
-defprotocol Collectable do
+defmodule Collectable do
   @moduledoc """
   A protocol to traverse data structures.
 
@@ -43,31 +43,29 @@ defprotocol Collectable do
   return any value, as it won't be used.
   """
   @spec into(term) :: {term, (term, command -> term | term)}
-  def into(collectable)
-end
+  @callback into(term) :: {term, (term, command -> term | term)}
 
-defimpl Collectable, for: List do
-  def into(original) do
+  def into(%{__struct__: module} = struct) do
+    module.into(struct)
+  end
+
+  def into(original) when is_list(original) do
     {[], fn
       list, {:cont, x} -> [x | list]
       list, :done -> original ++ :lists.reverse(list)
       _, :halt -> :ok
     end}
   end
-end
 
-defimpl Collectable, for: BitString do
-  def into(original) do
+  def into(original) when is_bitstring(original) do
     {original, fn
       acc, {:cont, x} when is_bitstring(x) -> [acc | x]
       acc, :done -> IO.iodata_to_binary(acc)
       _, :halt -> :ok
     end}
   end
-end
 
-defimpl Collectable, for: Map do
-  def into(original) do
+  def into(original) when is_map(original) do
     {original, fn
       map, {:cont, {k, v}} -> :maps.put(k, v, map)
       map, :done -> map

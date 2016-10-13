@@ -217,16 +217,8 @@ defmodule HashDict do
   defp key_shift(hash) do
     hash >>> @node_shift
   end
-end
 
-defimpl Enumerable, for: HashDict do
-  def reduce(dict, acc, fun),  do: HashDict.reduce(dict, acc, fun)
-  def member?(dict, {k, v}), do: {:ok, match?({:ok, ^v}, HashDict.fetch(dict, k))}
-  def member?(_dict, _),       do: {:ok, false}
-  def count(dict),             do: {:ok, HashDict.size(dict)}
-end
-
-defimpl Collectable, for: HashDict do
+  @behaviour Collectable
   def into(original) do
     {original, fn
       dict, {:cont, {k, v}} -> HashDict.put(dict, k, v)
@@ -234,6 +226,13 @@ defimpl Collectable, for: HashDict do
       _, :halt -> :ok
     end}
   end
+end
+
+defimpl Enumerable, for: HashDict do
+  def reduce(dict, acc, fun),  do: HashDict.reduce(dict, acc, fun)
+  def member?(dict, {k, v}), do: {:ok, match?({:ok, ^v}, HashDict.fetch(dict, k))}
+  def member?(_dict, _),       do: {:ok, false}
+  def count(dict),             do: {:ok, HashDict.size(dict)}
 end
 
 defimpl Inspect, for: HashDict do

@@ -349,14 +349,13 @@ defmodule MapSet do
     def count(set),            do: {:ok, MapSet.size(set)}
   end
 
-  defimpl Collectable do
-    def into(original) do
-      {original, fn
-        set, {:cont, x} -> MapSet.put(set, x)
-        set, :done -> set
-        _, :halt -> :ok
-      end}
-    end
+  @behaviour Collectable
+  def into(original) do
+    {original, fn
+      set, {:cont, x} -> MapSet.put(set, x)
+      set, :done -> set
+      _, :halt -> :ok
+    end}
   end
 
   defimpl Inspect do
