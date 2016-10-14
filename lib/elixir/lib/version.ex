@@ -108,6 +108,11 @@ defmodule Version do
   defmodule Requirement do
     defstruct [:source, :matchspec, :compiled]
     @type t :: %__MODULE__{}
+
+    @behaviour String.Chars
+    def to_string(%Version.Requirement{source: source}) do
+      source
+    end
   end
 
   defmodule InvalidRequirementError do
@@ -610,9 +615,8 @@ defmodule Version do
       "#{major}.#{minor}.#{patch}#{pre}"
     end
   end
-end
 
-defimpl String.Chars, for: Version do
+  @behaviour String.Chars
   def to_string(version) do
     pre = pre(version.pre)
     build = if build = version.build, do: "+#{build}"
@@ -635,12 +639,6 @@ end
 defimpl Inspect, for: Version do
   def inspect(self, _opts) do
     "#Version<" <> to_string(self) <> ">"
-  end
-end
-
-defimpl String.Chars, for: Version.Requirement do
-  def to_string(%Version.Requirement{source: source}) do
-    source
   end
 end
 

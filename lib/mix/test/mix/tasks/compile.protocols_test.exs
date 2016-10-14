@@ -42,6 +42,7 @@ defmodule Mix.Tasks.Compile.ProtocolsTest do
     end
   end
 
+  @tag :skip
   test "compiles and consolidates deps protocols", context do
     Mix.Project.push MixTest.Case.Sample
 

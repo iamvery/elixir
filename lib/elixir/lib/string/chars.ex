@@ -1,6 +1,6 @@
 import Kernel, except: [to_string: 1]
 
-defprotocol String.Chars do
+defmodule String.Chars do
   @moduledoc ~S"""
   The `String.Chars` protocol is responsible for
   converting a structure to a Binary (only if applicable).
@@ -14,44 +14,32 @@ defprotocol String.Chars do
   as `"foo" <> to_string(bar)`.
   """
 
-  def to_string(term)
-end
+  @callback to_string(term) :: String.t
 
-defimpl String.Chars, for: Atom do
-  def to_string(nil) do
-    ""
+  def to_string(%{__struct__: module} = struct) do
+    module.to_string(struct)
   end
 
-  def to_string(atom) do
-    Atom.to_string(atom)
-  end
-end
+  def to_string(nil), do: ""
+  def to_string(atom) when is_atom(atom), do: Atom.to_string(atom)
+  def to_string(term) when is_binary(term), do: term
+  def to_string(charlist) when is_list(charlist), do: List.to_string(charlist)
+  def to_string(term) when is_integer(term), do: Integer.to_string(term)
 
-defimpl String.Chars, for: BitString do
-  def to_string(term) when is_binary(term) do
-    term
+  def to_string(term) when is_float(term) do
+    IO.iodata_to_binary(:io_lib_format.fwrite_g(term))
+  end
+
+  def to_string(term) when is_bitstring(term) do
+    raise Protocol.UndefinedError,
+             protocol: __MODULE__,
+                value: term,
+          description: "cannot convert a bitstring to a string"
   end
 
   def to_string(term) do
     raise Protocol.UndefinedError,
-             protocol: @protocol,
-                value: term,
-          description: "cannot convert a bitstring to a string"
-  end
-end
-
-defimpl String.Chars, for: List do
-  def to_string(charlist), do: List.to_string(charlist)
-end
-
-defimpl String.Chars, for: Integer do
-  def to_string(term) do
-    Integer.to_string(term)
-  end
-end
-
-defimpl String.Chars, for: Float do
-  def to_string(term) do
-    IO.iodata_to_binary(:io_lib_format.fwrite_g(term))
+             protocol: __MODULE__,
+                value: term
   end
 end

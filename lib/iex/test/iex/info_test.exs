@@ -29,6 +29,7 @@ defmodule IEx.InfoTest do
     assert info[:"Description"] == description
   end
 
+  @tag :skip
   test "atoms: module that is also a protocol" do
     info = Info.info(String.Chars)
     description = info[:"Protocol"]

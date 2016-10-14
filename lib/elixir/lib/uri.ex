@@ -436,19 +436,6 @@ defmodule URI do
     end
   end
 
-  @doc """
-  Returns the string representation of the given `URI` struct.
-
-      iex> URI.to_string(URI.parse("http://google.com"))
-      "http://google.com"
-
-      iex> URI.to_string(%URI{scheme: "foo", host: "bar.baz"})
-      "foo://bar.baz"
-
-  """
-  @spec to_string(t) :: binary
-  defdelegate to_string(uri), to: String.Chars.URI
-
   @doc ~S"""
   Merges two URIs.
 
@@ -522,9 +509,20 @@ defmodule URI do
     do: reverse_and_discard_empty(tail, acc)
   defp reverse_and_discard_empty([head | tail], acc),
     do: reverse_and_discard_empty(tail, [head | acc])
-end
 
-defimpl String.Chars, for: URI do
+  @doc """
+  Returns the string representation of the given `URI` struct.
+
+      iex> URI.to_string(URI.parse("http://google.com"))
+      "http://google.com"
+
+      iex> URI.to_string(%URI{scheme: "foo", host: "bar.baz"})
+      "foo://bar.baz"
+
+  """
+  @spec to_string(t) :: binary
+
+  @behaviour String.Chars
   def to_string(%{scheme: scheme, port: port, path: path,
                   query: query, fragment: fragment} = uri) do
     uri =

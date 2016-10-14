@@ -290,10 +290,9 @@ defmodule Date do
     end
   end
 
-  defimpl String.Chars do
-    def to_string(%Date{calendar: calendar} = date) do
-      calendar.to_string(date)
-    end
+  @behaviour String.Chars
+  def to_string(%Date{calendar: calendar} = date) do
+    calendar.to_string(date)
   end
 
   defimpl Inspect do
@@ -570,10 +569,9 @@ defmodule Time do
     end
   end
 
-  defimpl String.Chars do
-    def to_string(time) do
-      Calendar.ISO.to_string(time)
-    end
+  @behaviour String.Chars
+  def to_string(time) do
+    Calendar.ISO.to_string(time)
   end
 
   defimpl Inspect do
@@ -1028,10 +1026,9 @@ defmodule NaiveDateTime do
     second * 1_000_000 + microsecond
   end
 
-  defimpl String.Chars do
-    def to_string(%NaiveDateTime{calendar: calendar} = naive) do
-      calendar.to_string(naive)
-    end
+  @behaviour String.Chars
+  def to_string(%NaiveDateTime{calendar: calendar} = naive) do
+    calendar.to_string(naive)
   end
 
   defimpl Inspect do
@@ -1405,9 +1402,8 @@ defmodule DateTime do
     calendar.to_string(dt)
   end
 
-  defimpl String.Chars do
-    def to_string(%DateTime{calendar: calendar} = dt) do
-      calendar.to_string(dt)
-    end
+  @behaviour String.Chars
+  def to_string(%DateTime{calendar: calendar} = dt) do
+    calendar.to_string(dt)
   end
 end
