@@ -134,15 +134,6 @@ defmodule Protocol do
   avoid extra conversion.
 
   Does not load any of the protocols.
-
-  ## Examples
-
-      # Get Elixir's ebin and retrieve all protocols
-      iex> path = :code.lib_dir(:elixir, :ebin)
-      iex> mods = Protocol.extract_protocols([path])
-      iex> Enumerable in mods
-      true
-
   """
   @spec extract_protocols([charlist | String.t]) :: [atom]
   def extract_protocols(paths) do
@@ -164,15 +155,6 @@ defmodule Protocol do
   avoid extra conversion.
 
   Does not load any of the implementations.
-
-  ## Examples
-
-      # Get Elixir's ebin and retrieve all protocols
-      iex> path = :code.lib_dir(:elixir, :ebin)
-      iex> mods = Protocol.extract_impls(Enumerable, [path])
-      iex> List in mods
-      true
-
   """
   @spec extract_impls(module, [charlist | String.t]) :: [atom]
   def extract_impls(protocol, paths) when is_atom(protocol) do

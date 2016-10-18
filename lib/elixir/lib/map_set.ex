@@ -343,11 +343,10 @@ defmodule MapSet do
   defp order_by_size(map1, map2) when map_size(map1) > map_size(map2), do: {map2, map1}
   defp order_by_size(map1, map2), do: {map1, map2}
 
-  defimpl Enumerable do
-    def reduce(set, acc, fun), do: Enumerable.List.reduce(MapSet.to_list(set), acc, fun)
-    def member?(set, val),     do: {:ok, MapSet.member?(set, val)}
-    def count(set),            do: {:ok, MapSet.size(set)}
-  end
+  @behaviour Enumerable
+  def reduce(set, acc, fun), do: Enumerable.reduce(MapSet.to_list(set), acc, fun)
+  def member?(set, val),     do: {:ok, MapSet.member?(set, val)}
+  def count(set),            do: {:ok, MapSet.size(set)}
 
   @behaviour Collectable
   def into(original) do

@@ -48,22 +48,21 @@ defmodule IO.Stream do
     end
   end
 
-  defimpl Enumerable do
-    def reduce(%{device: device, raw: raw, line_or_bytes: line_or_bytes}, acc, fun) do
-      next_fun =
-        case raw do
-          true  -> &IO.each_binstream(&1, line_or_bytes)
-          false -> &IO.each_stream(&1, line_or_bytes)
-        end
-      Stream.resource(fn -> device end, next_fun, &(&1)).(acc, fun)
-    end
+  @behaviour Enumerable
+  def reduce(%{device: device, raw: raw, line_or_bytes: line_or_bytes}, acc, fun) do
+    next_fun =
+      case raw do
+        true  -> &IO.each_binstream(&1, line_or_bytes)
+        false -> &IO.each_stream(&1, line_or_bytes)
+      end
+    Stream.resource(fn -> device end, next_fun, &(&1)).(acc, fun)
+  end
 
-    def count(_stream) do
-      {:error, __MODULE__}
-    end
+  def count(_stream) do
+    {:error, __MODULE__}
+  end
 
-    def member?(_stream, _term) do
-      {:error, __MODULE__}
-    end
+  def member?(_stream, _term) do
+    {:error, __MODULE__}
   end
 end

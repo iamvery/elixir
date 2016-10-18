@@ -79,9 +79,8 @@ defmodule Range do
     import Inspect.Algebra
     concat [to_doc(first, opts), "..", to_doc(last, opts)]
   end
-end
 
-defimpl Enumerable, for: Range do
+  @behaviour Enumerable
   def reduce(first..last, acc, fun) do
     reduce(first, last, acc, fun, last >= first)
   end

@@ -65,34 +65,33 @@ defmodule File.Stream do
     end
   end
 
-  defimpl Enumerable do
-    def reduce(%{path: path, modes: modes, line_or_bytes: line_or_bytes, raw: raw}, acc, fun) do
-      modes = for mode <- modes, not mode in [:write, :append], do: mode
+  @behaviour Enumerable
+  def reduce(%{path: path, modes: modes, line_or_bytes: line_or_bytes, raw: raw}, acc, fun) do
+    modes = for mode <- modes, not mode in [:write, :append], do: mode
 
-      start_fun =
-        fn ->
-          case :file.open(path, modes) do
-            {:ok, device}    -> device
-            {:error, reason} ->
-              raise File.Error, reason: reason, action: "stream", path: path
-          end
+    start_fun =
+      fn ->
+        case :file.open(path, modes) do
+          {:ok, device}    -> device
+          {:error, reason} ->
+            raise File.Error, reason: reason, action: "stream", path: path
         end
+      end
 
-      next_fun =
-        case raw do
-          true  -> &IO.each_binstream(&1, line_or_bytes)
-          false -> &IO.each_stream(&1, line_or_bytes)
-        end
+    next_fun =
+      case raw do
+        true  -> &IO.each_binstream(&1, line_or_bytes)
+        false -> &IO.each_stream(&1, line_or_bytes)
+      end
 
-      Stream.resource(start_fun, next_fun, &:file.close/1).(acc, fun)
-    end
+    Stream.resource(start_fun, next_fun, &:file.close/1).(acc, fun)
+  end
 
-    def count(_stream) do
-      {:error, __MODULE__}
-    end
+  def count(_stream) do
+    {:error, __MODULE__}
+  end
 
-    def member?(_stream, _term) do
-      {:error, __MODULE__}
-    end
+  def member?(_stream, _term) do
+    {:error, __MODULE__}
   end
 end

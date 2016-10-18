@@ -799,7 +799,7 @@ defmodule Stream do
       do_transform(user_acc, user, fun, next_op, next, inner_acc, inner, after_fun)
     {list, user_acc} when is_list(list) ->
       do_list_transform(user_acc, user, fun, next_op, next, inner_acc, inner,
-                        &Enumerable.List.reduce(list, &1, fun), after_fun)
+                        &Enumerable.reduce(list, &1, fun), after_fun)
     {:halt, user_acc} ->
       next.({:halt, []})
       do_after(after_fun, user_acc)
@@ -1258,7 +1258,7 @@ defmodule Stream do
         do_resource(next_acc, next_fun, {:halt, acc}, fun, after_fun)
       {list, next_acc} when is_list(list) ->
         do_list_resource(next_acc, next_fun, {:cont, acc}, fun, after_fun,
-                         &Enumerable.List.reduce(list, &1, fun))
+                         &Enumerable.reduce(list, &1, fun))
       {enum, next_acc} ->
         inner = &do_resource_each(&1, &2, fun)
         do_enum_resource(next_acc, next_fun, {:cont, acc}, fun, after_fun,
@@ -1368,9 +1368,8 @@ defmodule Stream do
     inner = [enum: enum, funs: Enum.reverse(funs)]
     Inspect.Algebra.concat ["#Stream<", Inspect.Algebra.to_doc(inner, opts), ">"]
   end
-end
 
-defimpl Enumerable, for: Stream do
+  @behaviour Enumerable
   @compile :inline_list_funs
 
   def reduce(lazy, acc, fun) do

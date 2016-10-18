@@ -44,9 +44,9 @@ defmodule GenEvent.Stream do
   def code_change(_old, state, _extra) do
     {:ok, state}
   end
-end
 
-defimpl Enumerable, for: GenEvent.Stream do
+  @behaviour Enumerable
+
   def reduce(stream, acc, fun) do
     start_fun = fn() -> start(stream) end
     next_fun = &next(stream, &1)

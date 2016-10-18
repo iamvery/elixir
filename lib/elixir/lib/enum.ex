@@ -1,4 +1,4 @@
-defprotocol Enumerable do
+defmodule Enumerable do
   @moduledoc """
   Enumerable protocol used by `Enum` and `Stream` modules.
 
@@ -112,8 +112,23 @@ defprotocol Enumerable do
       def reduce([h | t], {:cont, acc}, fun),    do: reduce(t, fun.(h, acc), fun)
 
   """
-  @spec reduce(t, acc, reducer) :: result
-  def reduce(enumerable, acc, fun)
+  @spec reduce(term, acc, reducer) :: result
+  @callback reduce(term, acc, reducer) :: result
+  def reduce(%{__struct__: module} = enumerable, acc, fun) do
+    module.reduce(enumerable, acc, fun)
+  end
+
+  def reduce(map, acc, fun) when is_map(map) do
+    reduce(:maps.to_list(map), acc, fun)
+  end
+
+  def reduce(function, acc, fun) when is_function(function, 2),
+    do: function.(acc, fun)
+
+  def reduce(_,       {:halt, acc}, _fun),   do: {:halted, acc}
+  def reduce(list,    {:suspend, acc}, fun), do: {:suspended, acc, &reduce(list, &1, fun)}
+  def reduce([],      {:cont, acc}, _fun),   do: {:done, acc}
+  def reduce([h | t], {:cont, acc}, fun),    do: reduce(t, fun.(h, acc), fun)
 
   @doc """
   Checks if an element exists within the enumerable.
@@ -127,8 +142,25 @@ defprotocol Enumerable do
   _Please force use of the default algorithm unless you can implement an
   algorithm that is significantly faster._
   """
-  @spec member?(t, term) :: {:ok, boolean} | {:error, module}
-  def member?(enumerable, element)
+  @spec member?(term, term) :: {:ok, boolean} | {:error, module}
+  @callback member?(term, term) :: {:ok, boolean} | {:error, module}
+  def member?(%{__struct__: module} = enumerable, element) do
+    module.member?(enumerable, element)
+  end
+
+  def member?(map, {key, value}) when is_map(map) do
+    {:ok, match?({:ok, ^value}, :maps.find(key, map))}
+  end
+
+  def member?(map, _other) when is_map(map) do
+    {:ok, false}
+  end
+
+  def member?(list, _value) when is_list(list),
+    do: {:error, __MODULE__}
+
+  def member?(function, _value) when is_function(function),
+    do: {:error, __MODULE__}
 
   @doc """
   Retrieves the enumerable's size.
@@ -142,8 +174,21 @@ defprotocol Enumerable do
   _Please force use of the default algorithm unless you can implement an
   algorithm that is significantly faster._
   """
-  @spec count(t) :: {:ok, non_neg_integer} | {:error, module}
-  def count(enumerable)
+  @spec count(term) :: {:ok, non_neg_integer} | {:error, module}
+  @callback count(term) :: {:ok, non_neg_integer} | {:error, module}
+  def count(%{__struct__: module} = enumerable) do
+    module.count(enumerable)
+  end
+
+  def count(map) when is_map(map) do
+    {:ok, map_size(map)}
+  end
+
+  def count(list) when is_list(list),
+    do: {:error, __MODULE__}
+
+  def count(function) when is_function(function),
+    do: {:error, __MODULE__}
 end
 
 defmodule Enum do
@@ -3040,49 +3085,10 @@ defmodule Enum do
   defp do_zip([], _, acc), do: :lists.reverse(acc)
 end
 
-defimpl Enumerable, for: List do
-  def count(_list),
-    do: {:error, __MODULE__}
-
-  def member?(_list, _value),
-    do: {:error, __MODULE__}
-
-  def reduce(_,       {:halt, acc}, _fun),   do: {:halted, acc}
-  def reduce(list,    {:suspend, acc}, fun), do: {:suspended, acc, &reduce(list, &1, fun)}
-  def reduce([],      {:cont, acc}, _fun),   do: {:done, acc}
-  def reduce([h | t], {:cont, acc}, fun),    do: reduce(t, fun.(h, acc), fun)
-end
-
-defimpl Enumerable, for: Map do
-  def count(map) do
-    {:ok, map_size(map)}
-  end
-
-  def member?(map, {key, value}) do
-    {:ok, match?({:ok, ^value}, :maps.find(key, map))}
-  end
-
-  def member?(_map, _other) do
-    {:ok, false}
-  end
-
-  def reduce(map, acc, fun) do
-    do_reduce(:maps.to_list(map), acc, fun)
-  end
-
-  defp do_reduce(_,       {:halt, acc}, _fun),   do: {:halted, acc}
-  defp do_reduce(list,    {:suspend, acc}, fun), do: {:suspended, acc, &do_reduce(list, &1, fun)}
-  defp do_reduce([],      {:cont, acc}, _fun),   do: {:done, acc}
-  defp do_reduce([h | t], {:cont, acc}, fun),    do: do_reduce(t, fun.(h, acc), fun)
-end
-
-defimpl Enumerable, for: Function do
-  def count(_function),
-    do: {:error, __MODULE__}
-
-  def member?(_function, _value),
-    do: {:error, __MODULE__}
-
-  def reduce(function, acc, fun) when is_function(function, 2),
-    do: function.(acc, fun)
-end
+#defimpl Enumerable, for: List do
+#
+#end
+#
+#defimpl Enumerable, for: Function do
+#
+#end
