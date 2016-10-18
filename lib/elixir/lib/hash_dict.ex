@@ -226,6 +226,12 @@ defmodule HashDict do
       _, :halt -> :ok
     end}
   end
+
+  @behaviour Inspect
+  def inspect(dict, opts) do
+    import Inspect.Algebra
+    concat ["#HashDict<", Inspect.List.inspect(HashDict.to_list(dict), opts), ">"]
+  end
 end
 
 defimpl Enumerable, for: HashDict do
@@ -233,12 +239,4 @@ defimpl Enumerable, for: HashDict do
   def member?(dict, {k, v}), do: {:ok, match?({:ok, ^v}, HashDict.fetch(dict, k))}
   def member?(_dict, _),       do: {:ok, false}
   def count(dict),             do: {:ok, HashDict.size(dict)}
-end
-
-defimpl Inspect, for: HashDict do
-  import Inspect.Algebra
-
-  def inspect(dict, opts) do
-    concat ["#HashDict<", Inspect.List.inspect(HashDict.to_list(dict), opts), ">"]
-  end
 end

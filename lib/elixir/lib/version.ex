@@ -113,6 +113,11 @@ defmodule Version do
     def to_string(%Version.Requirement{source: source}) do
       source
     end
+
+    @behaviour Inspect
+    def inspect(%Version.Requirement{source: source}, _opts) do
+      "#Version.Requirement<" <> source <> ">"
+    end
   end
 
   defmodule InvalidRequirementError do
@@ -634,16 +639,9 @@ defmodule Version do
         string when is_binary(string) -> string
       end)
   end
-end
 
-defimpl Inspect, for: Version do
+  @behaviour Inspect
   def inspect(self, _opts) do
-    "#Version<" <> to_string(self) <> ">"
-  end
-end
-
-defimpl Inspect, for: Version.Requirement do
-  def inspect(%Version.Requirement{source: source}, _opts) do
-    "#Version.Requirement<" <> source <> ">"
+    "#Version<" <> Kernel.to_string(self) <> ">"
   end
 end

@@ -73,6 +73,12 @@ defmodule Range do
   def range?(term)
   def range?(first..last) when is_integer(first) and is_integer(last), do: true
   def range?(_), do: false
+
+  @behaviour Inspect
+  def inspect(first..last, opts) do
+    import Inspect.Algebra
+    concat [to_doc(first, opts), "..", to_doc(last, opts)]
+  end
 end
 
 defimpl Enumerable, for: Range do
@@ -118,13 +124,5 @@ defimpl Enumerable, for: Range do
     else
       {:ok, first - last + 1}
     end
-  end
-end
-
-defimpl Inspect, for: Range do
-  import Inspect.Algebra
-
-  def inspect(first..last, opts) do
-    concat [to_doc(first, opts), "..", to_doc(last, opts)]
   end
 end

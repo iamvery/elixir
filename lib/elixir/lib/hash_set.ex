@@ -241,18 +241,16 @@ defmodule HashSet do
       _, :halt -> :ok
     end}
   end
+
+  @behaviour Inspect
+  def inspect(set, opts) do
+    import Inspect.Algebra
+    concat ["#HashSet<", Inspect.List.inspect(HashSet.to_list(set), opts), ">"]
+  end
 end
 
 defimpl Enumerable, for: HashSet do
   def reduce(set, acc, fun), do: HashSet.reduce(set, acc, fun)
   def member?(set, v),       do: {:ok, HashSet.member?(set, v)}
   def count(set),            do: {:ok, HashSet.size(set)}
-end
-
-defimpl Inspect, for: HashSet do
-  import Inspect.Algebra
-
-  def inspect(set, opts) do
-    concat ["#HashSet<", Inspect.List.inspect(HashSet.to_list(set), opts), ">"]
-  end
 end

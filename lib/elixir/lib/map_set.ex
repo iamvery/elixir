@@ -358,11 +358,9 @@ defmodule MapSet do
     end}
   end
 
-  defimpl Inspect do
+  @behaviour Inspect
+  def inspect(set, opts) do
     import Inspect.Algebra
-
-    def inspect(set, opts) do
-      concat ["#MapSet<", Inspect.List.inspect(MapSet.to_list(set), opts), ">"]
-    end
+    concat ["#MapSet<", Inspect.List.inspect(MapSet.to_list(set), opts), ">"]
   end
 end

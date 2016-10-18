@@ -295,14 +295,13 @@ defmodule Date do
     calendar.to_string(date)
   end
 
-  defimpl Inspect do
-    def inspect(%Date{calendar: Calendar.ISO} = date, _) do
-      "~D[" <> Calendar.ISO.to_string(date) <> "]"
-    end
+  @behaviour Inspect
+  def inspect(%Date{calendar: Calendar.ISO} = date, _) do
+    "~D[" <> Calendar.ISO.to_string(date) <> "]"
+  end
 
-    def inspect(date, opts) do
-      Inspect.Any.inspect(date, opts)
-    end
+  def inspect(date, opts) do
+    Inspect.Any.inspect(date, opts)
   end
 end
 
@@ -574,10 +573,9 @@ defmodule Time do
     Calendar.ISO.to_string(time)
   end
 
-  defimpl Inspect do
-    def inspect(time, _) do
-      "~T[" <> Calendar.ISO.to_string(time) <> "]"
-    end
+  @behaviour Inspect
+  def inspect(time, _) do
+    "~T[" <> Calendar.ISO.to_string(time) <> "]"
   end
 end
 
@@ -1031,14 +1029,13 @@ defmodule NaiveDateTime do
     calendar.to_string(naive)
   end
 
-  defimpl Inspect do
-    def inspect(%NaiveDateTime{calendar: Calendar.ISO} = naive, _) do
-      "~N[" <> Calendar.ISO.to_string(naive) <> "]"
-    end
+  @behaviour Inspect
+  def inspect(%NaiveDateTime{calendar: Calendar.ISO} = naive, _) do
+    "~N[" <> Calendar.ISO.to_string(naive) <> "]"
+  end
 
-    def inspect(naive, opts) do
-      Inspect.Any.inspect(naive, opts)
-    end
+  def inspect(naive, opts) do
+    Inspect.Any.inspect(naive, opts)
   end
 end
 

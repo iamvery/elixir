@@ -195,10 +195,9 @@ defmodule ExUnit.FormatterTest do
   defmodule BadInspect do
     defstruct key: 0
 
-    defimpl Inspect do
-      def inspect(struct, opts) when is_atom(opts) do
-        struct.unknown
-      end
+    @behaviour Inspect
+    def inspect(struct, opts) when is_atom(opts) do
+      struct.unknown
     end
   end
 
@@ -206,7 +205,7 @@ defmodule ExUnit.FormatterTest do
     failure = [{:error, catch_assertion(assert :will_fail == %BadInspect{}), []}]
 
     message = "got FunctionClauseError with message \"no function clause matching " <>
-              "in Inspect.ExUnit.FormatterTest.BadInspect.inspect/2\" while inspecting " <>
+              "in ExUnit.FormatterTest.BadInspect.inspect/2\" while inspecting " <>
               "%{__struct__: ExUnit.FormatterTest.BadInspect, key: 0}"
 
     assert format_test_failure(test(), failure, 1, 80, &formatter/2) =~ """

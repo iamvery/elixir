@@ -1362,6 +1362,12 @@ defmodule Stream do
     do: %{lazy | funs: [fun | funs], accs: [acc | accs], done: done}
   defp lazy(enum, acc, fun, done),
     do: %Stream{enum: enum, funs: [fun], accs: [acc], done: done}
+
+  @behaviour Inspect
+  def inspect(%{enum: enum, funs: funs}, opts) do
+    inner = [enum: enum, funs: Enum.reverse(funs)]
+    Inspect.Algebra.concat ["#Stream<", Inspect.Algebra.to_doc(inner, opts), ">"]
+  end
 end
 
 defimpl Enumerable, for: Stream do
@@ -1407,14 +1413,5 @@ defimpl Enumerable, for: Stream do
       {:halt, [acc | _]}    -> {:halted, acc}
       {:suspend, [acc | _]} -> {:suspended, acc, &({:done, elem(&1, 1)})}
     end
-  end
-end
-
-defimpl Inspect, for: Stream do
-  import Inspect.Algebra
-
-  def inspect(%{enum: enum, funs: funs}, opts) do
-    inner = [enum: enum, funs: Enum.reverse(funs)]
-    concat ["#Stream<", to_doc(inner, opts), ">"]
   end
 end

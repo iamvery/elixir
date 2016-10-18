@@ -393,7 +393,6 @@ defmodule Protocol.ConsolidationTest do
   test "consolidation extracts protocols" do
     protos = Protocol.extract_protocols([:code.lib_dir(:elixir, :ebin)])
     assert Enumerable in protos
-    assert Inspect in protos
   end
 
   test "consolidation extracts implementations" do

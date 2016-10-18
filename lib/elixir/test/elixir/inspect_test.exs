@@ -289,10 +289,9 @@ defmodule Inspect.MapTest do
   defmodule Failing do
     defstruct key: 0
 
-    defimpl Inspect do
-      def inspect(struct, _) do
-        struct.unknown
-      end
+    @behaviour Inspect
+    def inspect(struct, _) do
+      struct.unknown
     end
   end
 
@@ -305,7 +304,7 @@ defmodule Inspect.MapTest do
       inspect(%Failing{}, safe: false)
     end
 
-    assert [{Inspect.Inspect.MapTest.Failing, :inspect, 2, _} | _] = System.stacktrace
+    assert [{Inspect.MapTest.Failing, :inspect, 2, _} | _] = System.stacktrace
   end
 
   test "bad implementation safe" do
